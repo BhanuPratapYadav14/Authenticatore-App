@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "145173021267",
+    "project_id": "zenauth-db599",
+    "storage_bucket": "zenauth-db599.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:145173021267:android:413ccab9ec1e192e9d3ca6",
+        "android_client_info": {
+          "package_name": "com.zenauth"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCm7xqj0najFoEiq1L-wRmjgT6X3zIlMao"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
