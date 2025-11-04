@@ -2,11 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:zenauth/Controllers/SplashScreenController.dart';
 
-class Splashscreen extends StatelessWidget {
+class Splashscreen extends StatefulWidget {
   Splashscreen({super.key});
+
+  @override
+  State<Splashscreen> createState() => _SplashscreenState();
+}
+
+class _SplashscreenState extends State<Splashscreen> {
   final Splashscreencontroller _splashscreencontroller = Get.put(
     Splashscreencontroller(),
   );
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    // _splashscreencontroller.GoToPage();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

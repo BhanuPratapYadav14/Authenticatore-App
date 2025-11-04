@@ -87,54 +87,54 @@ class LoginView extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 32),
-              Row(
-                children: [
-                  const Expanded(child: Divider(color: Colors.grey)),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Text(
-                      'Or login with',
-                      style: TextStyle(color: Colors.grey[600]),
-                    ),
-                  ),
-                  const Expanded(child: Divider(color: Colors.grey)),
-                ],
-              ),
-              const SizedBox(height: 32),
-              // Social Login Buttons
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  // _buildSocialButton(
-                  //   icon: Icons.fingerprint,
-                  //   onTap: () => controller.loginWithBiometrics(
-                  //     biometricType: "TouchID",
-                  //   ),
-                  // ),
-                  // _buildSocialButton(
-                  //   icon:
-                  //       Icons.person, // For Face ID, you can use a custom icon
-                  //   onTap: () =>
-                  //       controller.loginWithBiometrics(biometricType: "FaceID"),
-                  // ),
-                  _buildSocialButton(
-                    icon: Icons.facebook,
-                    onTap: () {
-                      // Implement Facebook login
-                    },
-                  ),
-                  _buildSocialButton(
-                    icon: Icons.apple,
-                    onTap: () {
-                      // Implement Apple login
-                    },
-                  ),
-                  _buildSocialButton(
-                    icon: Icons.g_mobiledata_rounded,
-                    onTap: () => controller.loginWithGoogle(),
-                  ),
-                ],
-              ),
+              // Row(
+              //   children: [
+              //     const Expanded(child: Divider(color: Colors.grey)),
+              //     Padding(
+              //       padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              //       child: Text(
+              //         'Or login with',
+              //         style: TextStyle(color: Colors.grey[600]),
+              //       ),
+              //     ),
+              //     const Expanded(child: Divider(color: Colors.grey)),
+              //   ],
+              // ),
+              // const SizedBox(height: 32),
+              // // Social Login Buttons
+              // Row(
+              //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              //   children: [
+              //     // _buildSocialButton(
+              //     //   icon: Icons.fingerprint,
+              //     //   onTap: () => controller.loginWithBiometrics(
+              //     //     biometricType: "TouchID",
+              //     //   ),
+              //     // ),
+              //     // _buildSocialButton(
+              //     //   icon:
+              //     //       Icons.person, // For Face ID, you can use a custom icon
+              //     //   onTap: () =>
+              //     //       controller.loginWithBiometrics(biometricType: "FaceID"),
+              //     // ),
+              //     _buildSocialButton(
+              //       icon: Icons.facebook,
+              //       onTap: () {
+              //         // Implement Facebook login
+              //       },
+              //     ),
+              //     _buildSocialButton(
+              //       icon: Icons.apple,
+              //       onTap: () {
+              //         // Implement Apple login
+              //       },
+              //     ),
+              //     _buildSocialButton(
+              //       icon: Icons.g_mobiledata_rounded,
+              //       onTap: () => controller.loginWithGoogle(),
+              //     ),
+              //   ],
+              // ),
               const SizedBox(height: 40),
               // "Don't have an account?" text
               Row(
@@ -166,21 +166,21 @@ class LoginView extends StatelessWidget {
     );
   }
 
-  Widget _buildSocialButton({
-    required IconData icon,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        height: 56,
-        width: 56,
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey[300]!),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Icon(icon, size: 30),
-      ),
-    );
-  }
+  // Widget _buildSocialButton({
+  //   required IconData icon,
+  //   required VoidCallback onTap,
+  // }) {
+  //   return InkWell(
+  //     onTap: onTap,
+  //     child: Container(
+  //       height: 56,
+  //       width: 56,
+  //       decoration: BoxDecoration(
+  //         border: Border.all(color: Colors.grey[300]!),
+  //         borderRadius: BorderRadius.circular(12),
+  //       ),
+  //       child: Icon(icon, size: 30),
+  //     ),
+  //   );
+  // }
 }

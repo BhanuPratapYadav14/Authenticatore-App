@@ -71,6 +71,16 @@ class SignupView extends StatelessWidget {
                         Icons.lock_outline,
                       ),
                     ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: controller.confirmPasswordController,
+                      validator: controller.passwordMatchValidator,
+                      obscureText: true,
+                      decoration: _inputDecoration(
+                        'Confirm Password',
+                        Icons.lock_outline,
+                      ),
+                    ),
                   ],
                 ),
               ),

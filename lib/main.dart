@@ -10,15 +10,13 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await HiveHelper.init();
   // Check the value from Hive before running the app.
-  bool isOnBoardingVisited = HiveHelper.instance.getBool('isOnBoardingVisited');
 
-  runApp(MyApp(isOnBoardingVisited: isOnBoardingVisited));
+  runApp(MyApp());
 }
 
 // ignore: must_be_immutable
 class MyApp extends StatelessWidget {
-  bool isOnBoardingVisited;
-  MyApp({super.key, required this.isOnBoardingVisited});
+  MyApp({super.key});
 
   // This widget is the root of your application.
   @override
