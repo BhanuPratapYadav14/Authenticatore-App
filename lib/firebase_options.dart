@@ -50,7 +50,7 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyCm7xqj0najFoEiq1L-wRmjgT6X3zIlMao',
+    apiKey: 'testing',
     appId: '1:145173021267:android:413ccab9ec1e192e9d3ca6',
     messagingSenderId: '145173021267',
     projectId: 'zenauth-db599',
