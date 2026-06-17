@@ -20,7 +20,11 @@ class WelcomeScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const Spacer(flex: 2),
-              const Icon(Icons.shield_outlined, size: 80, color: Colors.black),
+              Icon(
+                Icons.shield_outlined,
+                size: 80,
+                color: Get.theme.colorScheme.onSurface,
+              ),
               const SizedBox(height: 16),
               const Text(
                 'Universal Auth',

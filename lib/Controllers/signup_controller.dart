@@ -1,24 +1,15 @@
 // lib/controllers/signup_controller.dart
 
-import 'dart:convert';
-import 'dart:io';
-
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
-import '../Models/signup_model.dart';
 import '../Screens/Loginpage/Loginpage.dart';
-import '../Services/api_service.dart';
-import '../util/helperClasses/HiveHelper.dart';
 
 // Navigate to login after signup
 
 class SignupController extends GetxController {
-  // final ApiService _apiService = Get.put(ApiService());
-
   final fullNameController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
@@ -28,8 +19,6 @@ class SignupController extends GetxController {
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googlesignin = GoogleSignIn.instance;
-  late final HiveHelper _hiveHelper;
-  String? device_id;
 
   String? validateFullName(String? value) {
     if (value == null || value.isEmpty) {
@@ -78,91 +67,40 @@ class SignupController extends GetxController {
 
   Future<void> signup() async {
     isLoading.value = true;
-    // The Signup Controller logic (assuming this is within your SignupController)
 
     try {
-      // 1. Send the Request
-      final request = SignupRequestModel(
-        fullName: fullNameController.text,
-        email: emailController.text,
+      final userCredential = await _auth.createUserWithEmailAndPassword(
+        email: emailController.text.trim(),
         password: passwordController.text,
-        confirmPassword: confirmPasswordController.text,
-        device_ID: device_id ?? "",
       );
 
-      // Await the HTTP response
-      final response = await signupWithEmail(request);
+      // Set the display name from the full name field.
+      await userCredential.user?.updateDisplayName(
+        fullNameController.text.trim(),
+      );
 
-      print("Response Received by server (Status: ${response.statusCode})");
-
-      // 2. Check for a successful HTTP status code (e.g., 200, 201)
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        // Attempt to decode the JSON body safely
-        final decodedBody = jsonDecode(response.body.toString());
-
-        print("Decoded JSON Body: $decodedBody");
-
-        // 3. Parse the JSON into the Model
-        final jsonResponse = SignUpResponseModel.fromJson(decodedBody);
-
-        // 4. Check the application-level status from the model
-        if (jsonResponse.message.toLowerCase().contains("success")) {
-          // Use message/status from the model
-
-          Get.snackbar(
-            'Success',
-            jsonResponse.message,
-            snackPosition: SnackPosition.BOTTOM,
-          );
-
-          // Save the access token
-          _hiveHelper.saveString("AccessToken", jsonResponse.accessToken);
-
-          // Navigate to the next screen (e.g., Home or Login)
-          Get.offAll(() => const LoginView());
-        } else {
-          // Handle server-side validation errors (e.g., email already taken)
-          Get.snackbar(
-            "Sign Up Failed",
-            jsonResponse.message,
-            snackPosition: SnackPosition.BOTTOM,
-          );
-        }
-      } else {
-        // Handle non-200 HTTP status codes (e.g., 400 Bad Request, 500 Server Error)
-        // Try to decode the body to show a specific error if the server sends one
-        try {
-          final errorBody = jsonDecode(response.body.toString());
-          Get.snackbar(
-            "Server Error (${response.statusCode})",
-            errorBody['message'] ?? 'Unknown error occurred.',
-            snackPosition: SnackPosition.BOTTOM,
-          );
-        } catch (_) {
-          // If the body isn't JSON (e.g., raw 500 error page)
-          Get.snackbar(
-            "Server Error",
-            "Failed with status code ${response.statusCode}. Please try again later.",
-            snackPosition: SnackPosition.BOTTOM,
-          );
-        }
-      }
-    } on SocketException {
       Get.snackbar(
-        "Internet Connection",
-        "Failed to connect with server. Please check your internet connection.",
+        'Success',
+        'Account created successfully.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+
+      // Navigate to the login screen.
+      Get.offAll(() => const LoginView());
+    } on FirebaseAuthException catch (e) {
+      Get.snackbar(
+        'Sign Up Failed',
+        e.message ?? 'Unable to create account.',
         snackPosition: SnackPosition.BOTTOM,
       );
     } catch (e) {
-      // Catch any remaining errors, primarily JSON decoding/model parsing errors
-      print("CRITICAL ERROR DURING DECODING OR MODEL PARSING: $e");
+      print("Unexpected error during sign up: $e");
       Get.snackbar(
-        'An unexpected Error occurred',
+        'An unexpected error occurred',
         e.toString(),
         snackPosition: SnackPosition.BOTTOM,
       );
     } finally {
-      print("Executing Finally block");
       isLoading.value = false;
     }
   }
@@ -207,39 +145,9 @@ class SignupController extends GetxController {
     }
   }
 
-  Future<User?> signUpWithEmailAndPassword({
-    required String Email,
-    required String Password,
-  }) async {
-    try {
-      final UserCredential userCredential = await _auth
-          .createUserWithEmailAndPassword(email: Email, password: Password);
-      return userCredential.user;
-    } on FirebaseException {
-      return null;
-    } catch (e) {
-      return null;
-    }
-  }
-
-  Future<String> getPlatformDeviceId() async {
-    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-
-    if (Platform.isIOS) {
-      IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
-      return iosInfo.identifierForVendor!; // iOS-specific ID
-    } else if (Platform.isAndroid) {
-      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-      return androidInfo.id; // Android-specific ID
-    }
-    return 'Unknown Device ID';
-  }
-
   @override
   void onInit() async {
     super.onInit();
-    _hiveHelper = await HiveHelper.init();
-    device_id = await getPlatformDeviceId();
 
     await _googlesignin.initialize(
       serverClientId:
@@ -252,6 +160,7 @@ class SignupController extends GetxController {
     fullNameController.dispose();
     emailController.dispose();
     passwordController.dispose();
+    confirmPasswordController.dispose();
     super.onClose();
   }
 }

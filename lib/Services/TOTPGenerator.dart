@@ -1,5 +1,6 @@
 // totp_generator.dart
 import 'dart:typed_data';
+import 'package:base32/base32.dart';
 import 'package:crypto/crypto.dart';
 
 class TOTPGenerator {
@@ -57,8 +58,12 @@ class TOTPGenerator {
 
   /// Converts a standard Base32 encoded string to a byte array.
   static Uint8List _base32Decode(String base32String) {
-    // Use the Base32 codec from the `convert` package
-    return Uint8List.fromList(_base32Decode(base32String.toUpperCase()));
+    // ⚠️ FIX: Use the external library's decode function instead of recursion.
+    // It's good practice to convert to uppercase and remove padding (=) before decoding.
+    final sanitizedString = base32String.toUpperCase().replaceAll('=', '');
+
+    // The base32 library decodes the string to a Uint8List.
+    return base32.decode(sanitizedString);
   }
 
   /// Converts an integer to an 8-byte (64-bit) big-endian byte array.

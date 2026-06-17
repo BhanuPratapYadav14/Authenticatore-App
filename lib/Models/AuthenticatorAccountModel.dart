@@ -1,8 +1,6 @@
 // lib/models/authenticator_account.dart
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart'; // For Color, though often omitted in pure models
+import 'package:zenauth/Models/OtpAccountModel.dart'; // For Color, though often omitted in pure models
 
 class AuthenticatorAccount {
   final String id; // Unique ID for storage
@@ -46,6 +44,23 @@ class AuthenticatorAccount {
     );
   }
 
+  factory AuthenticatorAccount.fromOtpAccountModel(OtpAccountModel otpModel) {
+    return AuthenticatorAccount(
+      id: otpModel.id,
+      // Issuer and Account Name might need sanitation/decoding which is often done in the OtpAccountModel
+      issuer: otpModel.issuer,
+      username: otpModel
+          .accountName, // Map OtpAccountModel's accountName to AuthenticatorAccount's username
+      secret: otpModel.secret,
+      digits: otpModel.digits,
+      period: otpModel.period,
+      // You can implement a simple color hash based on the issuer or username here
+      color: Color(otpModel.issuer.hashCode % 0xFFFFFF).withOpacity(1.0),
+      currentOtp: '------',
+      secondsRemaining: 0,
+    );
+  }
+
   // Method to convert to JSON (e.g., for secure storage)
   Map<String, dynamic> toJson() {
     return {
@@ -64,69 +79,24 @@ class AuthenticatorAccount {
 
   // For GetX's RxList updates, we often need to be able to copy/update
   AuthenticatorAccount copyWith({
-    String? Id,
+    String? Id, // Parameter is capitalized 'Id'
     String? currentOtp,
     int? secondsRemaining,
+    Color?
+    color, // ⚠️ FIX: Added Color? color to allow updating/passing existing color
   }) {
     return AuthenticatorAccount(
-      id: Id ?? "",
+      // ⚠️ CRITICAL FIX: Use the existing ID (this.id) if the new Id is null.
+      id: Id ?? this.id,
       issuer: issuer,
       username: username,
       secret: secret,
       digits: digits,
       period: period,
-      color: color,
+      // ⚠️ FIX: Ensure color is preserved or updated
+      color: color ?? this.color,
       currentOtp: currentOtp ?? this.currentOtp,
       secondsRemaining: secondsRemaining ?? this.secondsRemaining,
     );
   }
-}
-
-class SecureStorageService {
-  // Use a singleton instance of FlutterSecureStorage
-  final _storage = const FlutterSecureStorage(
-    aOptions: AndroidOptions(encryptedSharedPreferences: true),
-  );
-
-  // Storage key prefix to organize TOTP entries
-  static const String _keyPrefix = 'totp_account_';
-
-  /// Saves a new TOTP account securely.
-  Future<void> saveAccount(AuthenticatorAccount account) async {
-    final key = '$_keyPrefix${account.id}';
-    // Store the JSON string. The secret is securely managed by the platform.
-    await _storage.write(key: key, value: jsonEncode(account.toJson()));
-  }
-
-  /// Retrieves all TOTP accounts from secure storage.
-  Future<List<AuthenticatorAccount>> getAllAccounts() async {
-    final allEntries = await _storage.readAll();
-    final List<AuthenticatorAccount> accounts = [];
-
-    allEntries.forEach((key, value) {
-      if (key.startsWith(_keyPrefix)) {
-        try {
-          // The key holds the ID, but we rely on the ID inside the JSON for model creation.
-          // final id = key.substring(_keyPrefix.length); // Not strictly needed here
-          final json = jsonDecode(value) as Map<String, dynamic>;
-          accounts.add(AuthenticatorAccount.fromJson(json));
-        } catch (e) {
-          // Log error for corrupted or unparseable entry
-          print('Error loading account for key $key: $e');
-        }
-      }
-    });
-
-    return accounts;
-  }
-
-  // --- NEW FUNCTIONALITY ADDED HERE ---
-  /// Deletes a specific TOTP account from secure storage using its ID.
-  Future<void> deleteAccount(String accountId) async {
-    final key = '$_keyPrefix$accountId';
-    // Use the delete method from flutter_secure_storage
-    await _storage.delete(key: key);
-  }
-
-  // ------------------------------------
 }

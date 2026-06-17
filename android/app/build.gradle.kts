@@ -11,7 +11,7 @@ plugins {
 android {
     namespace = "com.zenauth"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    ndkVersion = "29.0.14206865"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -27,7 +27,8 @@ android {
         applicationId = "com.zenauth"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
+        // flutter_secure_storage EncryptedSharedPreferences requires API 23+.
+        minSdk = maxOf(23, flutter.minSdkVersion)
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName

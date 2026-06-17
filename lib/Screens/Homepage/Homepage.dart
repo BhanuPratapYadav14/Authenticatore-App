@@ -1,17 +1,35 @@
 // lib/views/home_view.dart
+import 'package:circular_menu/circular_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // For Clipboard
 import 'package:get/get.dart';
 
+import '../../Controllers/AppLockController.dart';
 import '../../Controllers/HomeController.dart';
 import '../../Widgets/AccountCard.dart';
-import '../../Widgets/BottomNavBar.dart';
 
-class HomeView extends StatelessWidget {
+enum MenuItem { home, addAccount, settings }
+
+class HomeView extends StatefulWidget {
   HomeView({super.key});
 
+  @override
+  State<HomeView> createState() => _HomeViewState();
+}
+
+class _HomeViewState extends State<HomeView> {
   // Inject the controller
   final HomeController controller = Get.put(HomeController());
+
+  @override
+  void initState() {
+    super.initState();
+    // Show the passcode lock on first app open (cold start). The controller
+    // is a no-op when the passcode feature is disabled or already locked.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Get.find<AppLockController>().lockOnStartup();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -101,8 +119,12 @@ class HomeView extends StatelessWidget {
                                 ),
                                 title: const Text('Delete Account'),
                                 onTap: () {
-                                  Get.back(); // Close bottom sheet
+                                  // Close bottom sheet
+                                  // print(
+                                  //   "The Account Selected to Delete is: ${account.id}",
+                                  // );
                                   controller.deleteAccount(account.id);
+                                  Get.back();
                                 },
                               ),
                             ],
@@ -119,33 +141,38 @@ class HomeView extends StatelessWidget {
         ],
       ),
       // Floating Action Button
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => controller.navigateToAddAccount(),
-        backgroundColor: Colors.black,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: const Icon(Icons.add, color: Colors.white, size: 32),
+      floatingActionButton: CircularMenu(
+        key: controller.menuKey,
+        alignment: Alignment.bottomRight, // Position the menu
+        toggleButtonColor: Colors.black,
+        // toggleButtonIcon: const Icon(Icons.menu, color: Colors.white),
+        radius: 100, // Distance of items from the center
+        toggleButtonBoxShadow: [],
+
+        items: [
+          CircularMenuItem(
+            icon: Icons.home,
+            color: Colors.black,
+            onTap: () => controller.onMenuItemSelected(MenuItem.home),
+            boxShadow: [],
+          ),
+          CircularMenuItem(
+            icon: Icons.add,
+            color: Colors.black,
+            onTap: () => controller.onMenuItemSelected(MenuItem.addAccount),
+            boxShadow: [],
+          ),
+          CircularMenuItem(
+            icon: Icons.settings,
+            color: Colors.black,
+            onTap: () => controller.onMenuItemSelected(MenuItem.settings),
+            boxShadow: [],
+          ),
+        ],
       ),
       floatingActionButtonLocation:
           FloatingActionButtonLocation.endFloat, // Position to the right
       // Bottom Navigation Bar
-      bottomNavigationBar: BottomNavBar(
-        currentIndex: 0, // Home is the first tab
-        onTap: (index) {
-          // Handle navigation based on index
-          if (index == 0) {
-            // Already on Home
-          } else if (index == 1) {
-            // Scan
-            Get.toNamed('/scan');
-          } else if (index == 2) {
-            // Add
-            controller.navigateToAddAccount();
-          } else if (index == 3) {
-            // Settings
-            controller.navigateToSettings();
-          }
-        },
-      ),
     );
   }
 }

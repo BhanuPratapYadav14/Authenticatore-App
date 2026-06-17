@@ -1,30 +1,24 @@
 // lib/controllers/login_controller.dart
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-// import 'package:google_sign_in/google_sign_in.dart';
 import 'package:local_auth/local_auth.dart';
-import 'package:device_info_plus/device_info_plus.dart';
-import 'dart:io';
-
-import '../Models/login_model.dart';
-import '../Services/api_service.dart';
+import 'package:zenauth/Screens/Homepage/Homepage.dart';
 
 class LoginController extends GetxController {
-  // final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   final LocalAuthentication _localAuth = LocalAuthentication();
 
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final isLoading = false.obs;
-  String? device_id;
 
   @override
-  void onInit() async {
+  void onInit() {
     super.onInit();
     // You can check for biometric availability on startup
     checkBiometrics();
-    device_id = await getPlatformDeviceId();
   }
 
   // Check if the device has biometrics available
@@ -38,38 +32,33 @@ class LoginController extends GetxController {
     }
   }
 
-  // Traditional email/password login
+  // Traditional email/password login (Firebase)
   Future<void> loginWithEmail() async {
     isLoading.value = true;
 
     try {
-      final loginData = LoginModel(
-        email: emailController.text,
+      final userCredential = await _auth.signInWithEmailAndPassword(
+        email: emailController.text.trim(),
         password: passwordController.text,
-        device_id: device_id,
       );
-      final user = await loginWithCredentials(loginData);
-      // Handle successful login (e.g., save token, navigate to home)
-      Get.snackbar('Success', 'Welcome, ${user.username}!');
-      // Get.offAll(() => const HomeScreen()); // Navigate to home screen
+
+      Get.snackbar(
+        'Success',
+        'Welcome, ${userCredential.user?.email ?? ''}!',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      Get.offAll(() => HomeView()); // Navigate to home screen
+    } on FirebaseAuthException catch (e) {
+      Get.snackbar(
+        'Error',
+        e.message ?? 'Failed to log in.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
     } catch (e) {
       Get.snackbar('Error', e.toString(), snackPosition: SnackPosition.BOTTOM);
     } finally {
       isLoading.value = false;
     }
-  }
-
-  Future<String> getPlatformDeviceId() async {
-    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-
-    if (Platform.isIOS) {
-      IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
-      return iosInfo.identifierForVendor!; // iOS-specific ID
-    } else if (Platform.isAndroid) {
-      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-      return androidInfo.id; // Android-specific ID
-    }
-    return 'Unknown Device ID';
   }
 
   @override
